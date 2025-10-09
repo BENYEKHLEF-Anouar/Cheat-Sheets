@@ -324,5 +324,3 @@ fun CompteurSection(modifier: Modifier = Modifier) {
     }
 }
 ```
-
-Save this as `kotlin-compose-cheatsheet.md` for quick reference! If expansions or more examples are needed, provide details.
