@@ -1,3 +1,4 @@
+````markdown
 # Kotlin and Jetpack Compose Cheat Sheet
 
 This cheat sheet is tailored for beginners in Kotlin and Android Studio, focusing on key topics: Variables & Loops, Functions and Lambdas, Null-safety, Data Classes & Copy, and Collections. It includes key concepts with brief explanations, syntax examples, and excerpts or adaptations from sample code demonstrating Compose for UI, state management, and basic interactions.
