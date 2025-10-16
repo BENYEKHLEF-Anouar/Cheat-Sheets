@@ -1,7 +1,3 @@
-Absolutely! I can create a **comprehensive Laravel cheat sheet** for beginners in **Markdown**, covering routes, controllers, models, migrations, views, requests, Blade templates, authentication, and common artisan commands. It will be a full reference for everyday Laravel use.
-
-Here’s the cheat sheet:
-
 ````markdown
 # Laravel Cheat Sheet (Beginner-Friendly)
 
@@ -24,6 +20,9 @@ php artisan serve   # Start development server
 # // DB_PASSWORD=
 
 # // php artisan migrate
+
+
+# // php artisan make: controller PortfolioController
 
 ````
 
