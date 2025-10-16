@@ -10,6 +10,21 @@ Here’s the cheat sheet:
 composer create-project laravel/laravel project-name
 cd project-name
 php artisan serve   # Start development server
+
+
+# // composer install
+# // copy .env.example .env
+# // php artisan key:generate
+
+# // DB_CONNECTION=mysql
+# // DB_HOST=127.0.0.1
+# // DB_PORT=3306
+# // DB_DATABASE=blog
+# // DB_USERNAME=root
+# // DB_PASSWORD=
+
+# // php artisan migrate
+
 ````
 
 ---
