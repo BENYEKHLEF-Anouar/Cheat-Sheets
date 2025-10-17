@@ -54,14 +54,14 @@ Route::get('/about', function() {
 });
 
 
-use App\Http\Controllers\PortfolioController; 
-// This line imports the PortfolioController class from the "App\Http\Controllers" namespace
-// It allows us to use the class name directly (PortfolioController) instead of writing the full namespace path every time.
+use App\Http\Controllers\fileController; 
+// This line imports the fileController class from the "App\Http\Controllers" namespace
+// It allows us to use the class name directly (fileController) instead of writing the full namespace path every time.
 
-Route::get('/', [PortfolioController::class, 'home'])->name('home');
+Route::get('/', [fileController::class, 'home'])->name('home');
 // This defines a GET route for the root URL ('/')
-// When a user visits the home page, Laravel will call the 'home' method of the PortfolioController class
-// The array [PortfolioController::class, 'home'] tells Laravel which controller and method to use
+// When a user visits the home page, Laravel will call the 'home' method of the fileController class
+// The array [fileController::class, 'home'] tells Laravel which controller and method to use
 // ->name('home') assigns a name to this route, allowing it to be referenced easily elsewhere (e.g., route('home'))
 
 
