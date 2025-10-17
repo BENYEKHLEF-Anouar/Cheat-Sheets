@@ -459,6 +459,3 @@ $user = new User();
 echo $user->info();
 ?>
 ```
-
-```
-
