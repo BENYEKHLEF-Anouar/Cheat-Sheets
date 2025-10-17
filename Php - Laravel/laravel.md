@@ -22,7 +22,7 @@ php artisan serve   # Start development server
 # // php artisan migrate
 
 
-# // php artisan make:controller PortfolioController
+# // php artisan make:controller fileController
 
 ````
 
