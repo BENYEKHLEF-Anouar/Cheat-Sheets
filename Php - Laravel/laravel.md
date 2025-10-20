@@ -10,11 +10,13 @@
   cd transaction-app
   php artisan serve  # Starts server at http://localhost:8000
   ```
+
 - Initial setup:
   ```bash
   cp .env.example .env  # Copy environment file
   php artisan key:generate  # Generate app key
   ```
+
 - Configure database in `.env`:
   ```env
   DB_CONNECTION=mysql
@@ -24,6 +26,7 @@
   DB_USERNAME=root
   DB_PASSWORD=
   ```
+
 - Run migrations:
   ```bash
   php artisan migrate
