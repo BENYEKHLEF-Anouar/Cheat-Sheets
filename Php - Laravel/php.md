@@ -1,5 +1,5 @@
 ````markdown
-# PHP Cheat Sheet (Enhanced)
+# PHP Cheat Sheet
 
 ## Basics
 ```php
