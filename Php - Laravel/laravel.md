@@ -2,27 +2,44 @@
 # Laravel Cheat Sheet (Beginner-Friendly)
 
 ## 1. Installation
+
+### Syntax Overview
+- Install Laravel via Composer:
+  ```bash
+  composer create-project laravel/laravel transaction-app
+  cd transaction-app
+  php artisan serve  # Starts server at http://localhost:8000
+  ```
+- Initial setup:
+  ```bash
+  cp .env.example .env  # Copy environment file
+  php artisan key:generate  # Generate app key
+  ```
+- Configure database in `.env`:
+  ```env
+  DB_CONNECTION=mysql
+  DB_HOST=127.0.0.1
+  DB_PORT=3306
+  DB_DATABASE=transactions
+  DB_USERNAME=root
+  DB_PASSWORD=
+  ```
+- Run migrations:
+  ```bash
+  php artisan migrate
+  ```
+
+### From Sample Code
+The sample code assumes a transaction tracking app with a MySQL database named `transactions`. After setting up `.env`, run:
 ```bash
-composer create-project laravel/laravel project-name
-cd project-name
-php artisan serve   # Start development server
+php artisan migrate  # Creates tables for transactions and users
+```
 
+### Tips
+- Like your PHP CLI scripts, use `php artisan` for repetitive tasks.
+- Keep `.env` secure (don’t commit to Git), similar to environment variables in React.
+- Test the server with `php artisan serve` to ensure setup is correct.
 
-# // composer install
-# // copy .env.example .env
-# // php artisan key:generate
-
-# // DB_CONNECTION=mysql
-# // DB_HOST=127.0.0.1
-# // DB_PORT=3306
-# // DB_DATABASE=blog
-# // DB_USERNAME=root
-# // DB_PASSWORD=
-
-# // php artisan migrate
-
-
-# // php artisan make:controller fileController
 
 ````
 
@@ -52,18 +69,6 @@ Route::get('/', function() {
 Route::get('/about', function() {
     return 'About Page';
 });
-
-
-use App\Http\Controllers\fileController; 
-// This line imports the fileController class from the "App\Http\Controllers" namespace
-// It allows us to use the class name directly (fileController) instead of writing the full namespace path every time.
-
-Route::get('/', [fileController::class, 'home'])->name('home');
-// This defines a GET route for the root URL ('/')
-// When a user visits the home page, Laravel will call the 'home' method of the fileController class
-// The array [fileController::class, 'home'] tells Laravel which controller and method to use
-// ->name('home') assigns a name to this route, allowing it to be referenced easily elsewhere (e.g., route('home'))
-
 
 Route::post('/submit', [FormController::class, 'submit']);
 
@@ -376,4 +381,3 @@ now();                  // Current datetime
 ```
 
 ---
-
