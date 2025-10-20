@@ -4,6 +4,7 @@
 ## 1. Installation
 
 ### Syntax Overview
+
 - Install Laravel via Composer:
   ```bash
   composer create-project laravel/laravel transaction-app
