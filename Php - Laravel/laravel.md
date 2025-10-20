@@ -1,5 +1,5 @@
 ````markdown
-# Laravel Cheat Sheet (Beginner-Friendly)
+# Laravel Cheat Sheet
 
 ## 1. Installation
 
