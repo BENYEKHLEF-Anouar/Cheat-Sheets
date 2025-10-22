@@ -28,6 +28,11 @@
   DB_PASSWORD=
   ```
 
+ - To create a controller in Laravel, you use the Artisan command-line tool:
+ ```bash
+  php artisan make:controller MyController
+  ```
+
 - Run migrations:
   ```bash
   php artisan migrate
