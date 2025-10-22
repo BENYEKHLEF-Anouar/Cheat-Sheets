@@ -90,6 +90,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('aut
 Route::middleware(['auth'])->group(function(){
     Route::get('/profile', [ProfileController::class, 'index']);
 });
+
+Route::get('/', [fileController::class, 'home'])->name('home');
+// This defines a GET route for the root URL ('/')
+// When a user visits the home page, Laravel will call the 'home' method of the fileController class
+// The array [fileController::class, 'home'] tells Laravel which controller and method to use
+// ->name('home') assigns a name to this route, allowing it to be referenced easily elsewhere (e.g., route('home'))
 ```
 
 ### API Routes
@@ -110,6 +116,8 @@ php artisan make:controller UserController
 
 // app/Http/Controllers/UserController.php
 namespace App\Http\Controllers;
+// This line imports the fileController class from the "App\Http\Controllers" namespace
+// It allows us to use the class name directly (fileController) instead of writing the full namespace path every time.
 
 use Illuminate\Http\Request;
 use App\Models\User;
