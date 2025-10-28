@@ -521,3 +521,27 @@ now();
 ```
 
 ---
+
+## Notions clés de Laravel
+
+| Élément | Définition | Exemple / Remarques |
+|---------|------------|-------------------|
+| **Migration** | Classe PHP qui définit les changements de schéma de la base de données (création de tables, ajout de colonnes). C’est un script SQL versionné. | `php artisan make:migration create_users_table` |
+| **Model** | Classe Eloquent représentant une table et permettant les opérations CRUD via l’ORM. | `User.php` |
+| **Factory** | Classe générant des instances fictives d’un modèle pour tests ou seeders. | `UserFactory.php` |
+| **Faker** | Librairie PHP intégrée (`fakerphp/faker`) qui produit des données réalistes (noms, emails, contenus). | `fake()->sentence()` |
+| **Seeder** | Classe qui exécute les factories ou insère directement des données pour peupler la base. | `UserSeeder.php` |
+| **DatabaseSeeder** | Coordonne l’exécution de tous les seeders dans le bon ordre. | `$this->call([UserSeeder::class, ...]);` |
+| **Controller** | Classe qui gère la logique métier et les interactions entre modèles et vues. | `UserController.php` |
+| **Routing** | Système qui relie les URL aux actions (closures ou méthodes de contrôleur). | `Route::get('/home', [HomeController::class, 'index']);` |
+| **Middleware** | Filtre exécuté avant ou après une requête HTTP pour vérifier ou modifier la requête. | `CheckAge`, `auth` |
+| **Blade** | Moteur de templates Laravel pour générer des vues HTML avec syntaxe simple. | `resources/views/users/index.blade.php` |
+| **Eloquent ORM** | Système d’ORM pour interagir avec la base via les modèles et les relations. | `$user->articles;`, `$article->tags();` |
+| **Request & Validation** | Permet de valider les données envoyées par l’utilisateur avant de les traiter. | `$request->validate([...]);` |
+| **Authentication** | Système d’authentification utilisateur (Breeze, Jetstream, etc.) intégré. | `php artisan breeze:install` |
+| **MVC (Model-View-Controller)** | Architecture : **Model** = données, **View** = affichage, **Controller** = logique métier et orchestration. | `$users = User::all(); return view('users.index', compact('users'));` |
+| **sync()** | Méthode pour associer plusieurs entités dans une relation n-n via une table pivot. | `$article->tags()->sync([1,2,3]);` |
+| **firstOrCreate()** | Crée une instance si elle n’existe pas encore (idempotent). | `Tag::firstOrCreate(['name' => 'Laravel']);` |
+
+---
+
