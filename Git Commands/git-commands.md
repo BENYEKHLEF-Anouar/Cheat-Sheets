@@ -32,6 +32,33 @@ clear
 
 ---
 
+# FILE CREATION AND COPYING COMMANDS
+
+```bash
+# Create a new empty file
+touch filename.txt
+
+# Or create a file and open it in a text editor (e.g., VS Code)
+code filename.txt
+
+# Create a new folder
+mkdir new-folder
+
+# Copy a file to another directory
+cp filename.txt new-folder/
+
+# Copy a folder and its contents recursively
+cp -r source-folder/ destination-folder/
+
+# Copy a file and rename it during the copy
+cp filename.txt copy-filename.txt
+
+# Verify the file was copied
+dir new-folder
+````
+
+---
+
 ## Staging, Committing, and Pushing
 
 ```bash
