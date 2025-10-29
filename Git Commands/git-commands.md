@@ -192,13 +192,30 @@ gh pr merge <PR-number> --merge
 You can automatically close issues when merging a pull request or committing by referencing the issue number.
 
 ```bash
-# Example commit that closes an issue
+# Example commit that automatically closes an issue when merged
 git commit -m "Fix login bug. Closes #12"
 
-# Other accepted keywords:
+# Other accepted keywords (GitHub recognizes these):
 # close, closes, closed
 # fix, fixes, fixed
 # resolve, resolves, resolved
+
+# Example: Close multiple issues at once
+git commit -m "Add authentication middleware. Fixes #12, resolves #15"
+
+# Example: Reference an issue without closing it (useful for ongoing work)
+git commit -m "Work on user profile settings (refs #22)"
+
+# You can also include these in a Pull Request description:
+# "This PR fixes #45 and resolves #47"
+# When merged into the default branch (main/master), those issues will close automatically.
+
+# Recommended branch naming for issue-related work
+# feature/<issue-number>-<short-description>
+# fix/<issue-number>-<short-description>
+
+# Example:
+git checkout -b feature/34-add-password-reset
 ```
 
 > When the branch containing this commit is merged into `main`, GitHub automatically closes issue **#12**.
