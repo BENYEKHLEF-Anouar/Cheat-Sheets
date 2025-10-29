@@ -32,7 +32,7 @@ clear
 
 ---
 
-# FILE CREATION AND COPYING COMMANDS
+## FILE CREATION AND COPYING COMMANDS
 
 ```bash
 # Create a new empty file
