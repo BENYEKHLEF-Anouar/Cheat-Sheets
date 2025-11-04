@@ -15,6 +15,8 @@
 * Initial setup:
 
   ```bash
+  composer install
+  composer dump-autolaod
   cp .env.example .env  # Copy environment file
   php artisan key:generate  # Generate app key
   ```
@@ -334,11 +336,57 @@ Route::get('/about', function() {
     return 'About Page';
 });
 
+// Route with parameters
+Route::get('/users/{id}', function ($id) {
+    return 'User ' . $id;
+});
+
+// Route with multiple parameters
+Route::get('/posts/{post}/comments/{comment}', function ($postId, $commentId) {
+    return "Post {$postId}, Comment {$commentId}";
+});
+
+// Optional parameters
+Route::get('/greeting/{name?}', function ($name = 'Guest') {
+    return 'Hello ' . $name;
+});
+
+// Regular Expression Constraints
+Route::get('/user/{name}', function ($name) {
+    return $name;
+})->where('name', '[A-Za-z]+');
+
+// Named Routes
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+
+// Route Groups
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/users', [AdminUserController::class, 'index'])->name('admin.users');
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
+});
+
+// Resource Routes
+Route::resource('photos', PhotoController::class);
+// This creates routes for: index, create, store, show, edit, update, destroy
+
+// API Resource Routes (without create and edit)
+Route::apiResource('products', ProductController::class);
+
+// Fallback Routes
+Route::fallback(function () {
+    return 'Page Not Found';
+});
+
+// Redirect Routes
+Route::redirect('/here', '/there', 301);
+
+// View Routes
+Route::view('/welcome', 'welcome', ['name' => 'Taylor']);
+
 Route::post('/submit', [FormController::class, 'submit']);
 Route::put('/update/{id}', [UserController::class, 'update']);
 Route::delete('/delete/{id}', [UserController::class, 'destroy']);
-Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
 ```
 
 ---
@@ -352,18 +400,51 @@ php artisan make:controller UserController
 ```php
 class UserController extends Controller
 {
+    // Display a listing of the resource.
     public function index() {
         $users = User::all();
         return view('users.index', compact('users'));
     }
 
+    // Show the form for creating a new resource.
+    public function create() {
+        return view('users.create');
+    }
+
+    // Store a newly created resource in storage.
     public function store(Request $request) {
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users'
         ]);
         User::create($data);
-        return redirect()->back();
+        return redirect()->route('users.index')->with('success', 'User created successfully!');
+    }
+
+    // Display the specified resource.
+    public function show(User $user) {
+        return view('users.show', compact('user'));
+    }
+
+    // Show the form for editing the specified resource.
+    public function edit(User $user) {
+        return view('users.edit', compact('user'));
+    }
+
+    // Update the specified resource in storage.
+    public function update(Request $request, User $user) {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id
+        ]);
+        $user->update($data);
+        return redirect()->route('users.index')->with('success', 'User updated successfully!');
+    }
+
+    // Remove the specified resource from storage.
+    public function destroy(User $user) {
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
     }
 }
 ```
@@ -380,7 +461,66 @@ php artisan make:model User -m
 class User extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'email', 'password'];
+
+    // Mass assignable attributes
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    // Hidden attributes
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    // Casts
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // Define a one-to-many relationship with Article
+    public function articles()
+    {
+        return $this->hasMany(Article::class);
+    }
+
+    // Define a many-to-many relationship with Role
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+}
+
+class Article extends Model
+{
+    use HasFactory;
+    protected $fillable = ['user_id', 'title', 'slug', 'excerpt', 'content'];
+
+    // Define a many-to-one relationship with User
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Define a many-to-many relationship with Tag
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+}
+
+class Tag extends Model
+{
+    use HasFactory;
+    protected $fillable = ['name', 'slug'];
+
+    // Define a many-to-many relationship with Article
+    public function articles()
+    {
+        return $this->belongsToMany(Article::class);
+    }
 }
 ```
 
@@ -389,9 +529,14 @@ class User extends Model
 ## 6. Migrations
 
 ```bash
-php artisan make:migration create_users_table
+php artisan make:migration create_users_table --create=users
+php artisan make:migration add_avatar_to_users_table --table=users
 php artisan migrate
+php artisan migrate:status
 php artisan migrate:rollback
+php artisan migrate:reset
+php artisan migrate:refresh
+php artisan migrate:fresh --seed
 ```
 
 ---
@@ -403,19 +548,43 @@ php artisan migrate:rollback
 <html>
 <head>
     <title>Laravel Cheat Sheet</title>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
+    @include('partials.header')
+
+    <div class="container">
+        @yield('content')
+    </div>
+
+    @stack('scripts')
+
     <h1>{{ $title }}</h1>
 
-    @if($users->count() > 0)
-        <ul>
-        @foreach($users as $user)
-            <li>{{ $user->name }}</li>
-        @endforeach
-        </ul>
-    @else
-        <p>No users found</p>
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
     @endif
+
+    @isset($users)
+        @if($users->count() > 0)
+            <ul>
+            @foreach($users as $user)
+                <li>{{ $user->name }}</li>
+            @endforeach
+            </ul>
+        @else
+            <p>No users found</p>
+        @endif
+    @endisset
+
+    {{-- This is a Blade comment --}}
+    @verbatim
+        <div class="foo">
+            {{ name }}
+        </div>
+    @endverbatim
 </body>
 </html>
 ```
@@ -425,10 +594,58 @@ php artisan migrate:rollback
 ## 8. Requests & Validation
 
 ```php
+// Basic validation
 $request->validate([
     'name' => 'required|string|max:255',
-    'email' => 'required|email|unique:users'
+    'email' => 'required|email|unique:users',
+    'password' => 'required|min:8|confirmed',
 ]);
+
+// Custom error messages
+$messages = [
+    'name.required' => 'A name is required.',
+    'email.unique' => 'This email is already taken.',
+];
+$request->validate([
+    'name' => 'required',
+    'email' => 'unique:users',
+], $messages);
+
+// Form Request Validation
+// php artisan make:request StoreBlogPostRequest
+// In StoreBlogPostRequest.php:
+// public function authorize() { return true; }
+// public function rules() { return ['title' => 'required|unique:posts|max:255']; }
+// In Controller:
+// public function store(StoreBlogPostRequest $request) { /* ... */ }
+
+// Displaying validation errors in Blade
+// @if ($errors->any())
+//     <div class="alert alert-danger">
+//         <ul>
+//             @foreach ($errors->all() as $error)
+//                 <li>{{ $error }}</li>
+//             @endforeach
+//         </ul>
+//     </div>
+// @endif
+
+// Accessing validated data
+$validated = $request->validated();
+// $validated['name'], $validated['email']
+
+// Conditional validation
+$request->validate([
+    'email' => 'required_if:mailable,true',
+]);
+
+// Custom validation rules
+// php artisan make:rule Uppercase
+// In Uppercase.php:
+// public function passes($attribute, $value) { return strtoupper($value) === $value; }
+// public function message() { return 'The :attribute must be uppercase.'; }
+// In validation:
+// 'name' => ['required', new Uppercase],
 ```
 
 ---
@@ -438,18 +655,133 @@ $request->validate([
 ### CRUD
 
 ```php
-$user = User::create([...]);
+// Create
+$user = User::create([
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'password' => bcrypt('password'),
+]);
+
+// Read (Find by ID)
 $user = User::find(1);
-$user->update([...]);
+$user = User::findOrFail(1); // Throws exception if not found
+
+// Read (Get all)
+$users = User::all();
+
+// Read (Query constraints)
+$activeUsers = User::where('active', 1)->orderBy('name')->get();
+$singleUser = User::where('email', 'john@example.com')->first();
+
+// Update
+$user = User::find(1);
+$user->name = 'Jane Doe';
+$user->save();
+
+// Mass Update
+User::where('active', 0)->update(['active' => 1]);
+
+// Delete
+$user = User::find(1);
 $user->delete();
+
+// Mass Delete
+User::where('active', 0)->delete();
+
+// Soft Deletes (add `use SoftDeletes;` to model and `->softDeletes()` to migration)
+// $user->delete(); // Soft deletes the user
+// User::withTrashed()->get(); // Retrieve all models including soft deleted
+// User::onlyTrashed()->get(); // Retrieve only soft deleted models
+// $user->restore(); // Restore a soft deleted model
+// $user->forceDelete(); // Permanently delete a model
+
+// Eager Loading (to avoid N+1 query problem)
+$users = User::with('articles')->get();
+foreach ($users as $user) {
+    foreach ($user->articles as $article) {
+        // ...
+    }
+}
+
+// Lazy Eager Loading
+$user = User::find(1);
+$user->load('articles');
+
+// Counting Related Models
+$users = User::withCount('articles')->get();
+foreach ($users as $user) {
+    echo $user->articles_count;
+}
+
+// Polymorphic Relationships (e.g., Image model belongs to Post or User)
+// class Image extends Model { public function imageable() { return $this->morphTo(); } }
+// class Post extends Model { public function image() { return $this->morphOne(Image::class, 'imageable'); } }
+// class User extends Model { public function image() { return $this->morphOne(Image::class, 'imageable'); } }
+
+// Accessors & Mutators (in User model)
+// public function getNameAttribute($value) { return ucfirst($value); } // Accessor
+// public function setNameAttribute($value) { $this->attributes['name'] = strtolower($value); } // Mutator
+
+// Customizing Table Names
+// protected $table = 'my_users';
+
+// Customizing Primary Keys
+// protected $primaryKey = 'user_id';
+
+// Disabling Timestamps
+// public $timestamps = false;
 ```
 
 ### Relationships
 
 ```php
-$user->posts;
-$post->user;
-$user->roles;
+// One-to-One
+// User hasOne Phone
+// public function phone() { return $this->hasOne(Phone::class); }
+// Phone belongsTo User
+// public function user() { return $this->belongsTo(User::class); }
+
+// One-to-Many
+// User hasMany Posts
+// public function posts() { return $this->hasMany(Post::class); }
+// Post belongsTo User
+// public function user() { return $this->belongsTo(User::class); }
+
+// Many-to-Many
+// User belongsToMany Roles
+// public function roles() { return $this->belongsToMany(Role::class); }
+// Role belongsToMany Users
+// public function users() { return $this->belongsToMany(User::class); }
+
+// Has Many Through
+// Country hasMany Posts through Users
+// public function posts() { return $this->hasManyThrough(Post::class, User::class); }
+
+// Polymorphic One-to-One
+// User morphOne Image
+// public function image() { return $this->morphOne(Image::class, 'imageable'); }
+// Post morphOne Image
+// public function image() { return $this->morphOne(Image::class, 'imageable'); }
+// Image morphTo imageable
+// public function imageable() { return $this->morphTo(); }
+
+// Polymorphic One-to-Many
+// Post morphMany Comments
+// public function comments() { return $this->morphMany(Comment::class, 'commentable'); }
+// Video morphMany Comments
+// public function comments() { return $this->morphMany(Comment::class, 'commentable'); }
+// Comment morphTo commentable
+// public function commentable() { return $this->morphTo(); }
+
+// Polymorphic Many-to-Many
+// Post morphToMany Tags
+// public function tags() { return $this->morphToMany(Tag::class, 'taggable'); }
+// Video morphToMany Tags
+// public function tags() { return $this->morphToMany(Tag::class, 'taggable'); }
+// Tag morphToMany Posts
+// public function posts() { return $this->morphedByMany(Post::class, 'taggable'); }
+// Tag morphToMany Videos
+// public function videos() { return $this->morphedByMany(Video::class, 'taggable'); }
 ```
 
 ---
@@ -458,6 +790,23 @@ $user->roles;
 
 ```bash
 php artisan make:middleware CheckAge
+```
+
+```php
+// Registering Middleware
+// In app/Http/Kernel.php
+// protected $middleware = [ /* ... */ \App\Http\Middleware\CheckAge::class, ]; // Global Middleware
+// protected $middlewareGroups = [ 'web' => [ /* ... */ ], 'api' => [ /* ... */ ], ]; // Middleware Groups
+// protected $routeMiddleware = [ 'auth' => \App\Http\Middleware\Authenticate::class, 'age' => \App\Http\Middleware\CheckAge::class, ]; // Route Middleware
+
+// Applying Middleware to Routes
+// Route::get('/admin', function () { /* ... */ })->middleware('auth');
+// Route::get('/admin', 'AdminController@index')->middleware('auth');
+// Route::middleware(['auth', 'age'])->group(function () { /* ... */ });
+
+// Middleware Parameters
+// public function handle($request, Closure $next, $role) { /* ... */ }
+// Route::put('post/{id}', function ($id) { /* ... */ })->middleware('role:editor');
 ```
 
 ---
@@ -491,8 +840,30 @@ php artisan db:seed
 ## 13. File Storage
 
 ```php
-$request->file('avatar')->store('avatars');
-Storage::url('avatars/file.jpg');
+// Store a file on the default disk (usually 'local')
+$path = $request->file('avatar')->store('avatars');
+// $path will be something like 'avatars/random_filename.jpg'
+
+// Store a file on a specific disk (e.g., 'public')
+$path = $request->file('avatar')->store('avatars', 'public');
+// To make it publicly accessible, you need to run `php artisan storage:link`
+
+// Get the URL for a stored file
+$url = Storage::url('avatars/file.jpg');
+
+// Get the contents of a file
+$contents = Storage::get('file.jpg');
+
+// Check if a file exists
+$exists = Storage::disk('public')->exists('avatars/file.jpg');
+
+// Delete a file
+Storage::delete('avatars/file.jpg');
+
+// Uploading multiple files
+// foreach ($request->file('photos') as $photo) {
+//     $photo->store('photos');
+// }
 ```
 
 ---
@@ -511,13 +882,74 @@ return redirect()->back()->with('success', 'Data saved successfully');
 ## 15. Helpers & Utilities
 
 ```php
+// Generate a URL to a named route
 route('home');
+route('profile', ['id' => 1]);
+
+// Generate a full URL to a given path
 url('/about');
+url()->current(); // Get the current URL
+url()->full(); // Get the full URL with query string
+
+// Retrieve the CSRF token value
 csrf_token();
+
+// Retrieve old input from the session
 old('name');
+old('email', 'default@example.com');
+
+// Generate a URL for an asset
 asset('css/app.css');
+asset('images/logo.png');
+
+// Hash a password
 bcrypt('password');
+Hash::make('password');
+
+// Get the current Carbon instance
 now();
+today();
+Carbon::parse('2024-01-01');
+
+// Dump variables (for debugging)
+dd($variable); // Dump and Die
+dump($variable); // Dump without stopping execution
+
+// Environment variables
+env('APP_NAME', 'Laravel');
+
+// Configuration values
+config('app.timezone');
+config(['app.locale' => 'en']);
+
+// String helpers
+Str::slug('Laravel Framework', '-'); // laravel-framework
+Str::snake('fooBar'); // foo_bar
+Str::camel('foo_bar'); // fooBar
+
+// Array helpers
+Arr::first($array, function ($value, $key) {
+    return $value >= 10;
+});
+Arr::pluck($array, 'name');
+
+// Collections
+collect([1, 2, 3])->map(function ($item) {
+    return $item * 2;
+})->all();
+
+// Events
+event(new UserRegistered($user));
+
+// Jobs
+dispatch(new ProcessPodcast($podcast));
+
+// Cache
+Cache::put('key', 'value', $minutes);
+Cache::get('key');
+Cache::remember('users', $minutes, function () {
+    return User::all();
+});
 ```
 
 ---
