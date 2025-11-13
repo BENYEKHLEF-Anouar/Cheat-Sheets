@@ -332,6 +332,8 @@ Route::get('/', function() {
     return view('welcome');
 });
 
+Route::get('/a-propos', [PageController::class, 'about'])->name('about');
+
 Route::get('/about', function() {
     return 'About Page';
 });
